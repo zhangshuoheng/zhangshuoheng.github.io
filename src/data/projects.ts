@@ -56,7 +56,7 @@ export const projects: Project[] = [
 - \`React 19 + React Router 7\`：前端路由与页面级代码分割（Markdown 渲染器按需加载）
 - \`Vite\`：开发热更新与生产构建
 - \`Tailwind CSS v4\`：设计令牌与暗色主题（class 策略 + 首屏防闪烁脚本）
-- \`gray-matter + react-markdown\`：解析 frontmatter、渲染 Markdown（GFM、代码高亮、锚点）
+- \`react-markdown\` + 自研 frontmatter 解析器：零依赖解析 frontmatter，渲染 Markdown（GFM、代码高亮、标题锚点）
 - 部署：GitHub Actions 自动构建并发布到 GitHub Pages；构建产物附带 404.html，保证深链接可用
 
 ## 为什么自己写而不用现成主题

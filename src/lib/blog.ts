@@ -1,8 +1,10 @@
-import matter from 'gray-matter'
+import { parseFrontmatter, asString, asStringArray } from './frontmatter'
 
 /**
  * 博客引擎：自动扫描 src/content/posts/*.md。
  * 新增一篇文章 = 在 src/content/posts/ 下新增一个 .md 文件，无需改任何代码。
+ *
+ * frontmatter 由 src/lib/frontmatter.ts 解析（零依赖，纯浏览器可用）。
  */
 
 export interface PostFrontmatter {
@@ -41,13 +43,7 @@ function slugFromPath(path: string): string {
 }
 
 function parsePost(path: string, raw: string): Post {
-  const { data, content } = matter(raw)
-  const fm = data as Partial<PostFrontmatter>
-
-  // frontmatter 中的 date 可能被 YAML 解析成 Date 对象，统一转成 YYYY-MM-DD
-  const rawDate = fm.date as unknown
-  const date =
-    rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : String(rawDate ?? '')
+  const { data, content } = parseFrontmatter(raw)
 
   // 粗略阅读时长：去掉代码块与符号后按字数估算，中文约 500 字/分钟
   const text = content
@@ -58,12 +54,12 @@ function parsePost(path: string, raw: string): Post {
 
   return {
     slug: slugFromPath(path),
-    title: fm.title ?? '未命名文章',
-    date,
-    tags: fm.tags ?? [],
-    summary: fm.summary ?? '',
-    cover: fm.cover,
-    published: fm.published ?? true,
+    title: asString(data.title) || '未命名文章',
+    date: asString(data.date),
+    tags: asStringArray(data.tags),
+    summary: asString(data.summary),
+    cover: asString(data.cover) || undefined,
+    published: data.published !== false,
     content,
     readingMinutes,
   }
@@ -90,7 +86,7 @@ export function getAllTags(): string[] {
   return [...tags].sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'))
 }
 
-/** YYYY-MM-DD → 2025年1月15日 */
+/** YYYY-MM-DD → 2026年9月23日 */
 export function formatDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00`)
   if (Number.isNaN(d.getTime())) return iso

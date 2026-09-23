@@ -27,3 +27,6 @@ Thumbs.db
 # deploy tool caches
 .vercel
 .netlify
+
+# 本地临时验证文件
+.tmp/
