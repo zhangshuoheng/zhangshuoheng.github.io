@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 基础 SEO（页面级 SEO 由 src/components/Seo.tsx 动态覆盖） -->
+    <meta name="description" content="仉烁蘅的个人网站：东北师范大学计算机科学与技术专业，专注人工智能方向，目标大厂 AI 岗。" />
+    <meta name="author" content="仉烁蘅" />
+    <!-- 默认即暗色；切换主题时由 useTheme 动态同步 -->
+    <meta name="theme-color" content="#09090b" />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="仉烁蘅" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="仉烁蘅 —— 个人网站" />
+    <meta property="og:description" content="东北师范大学 · 计算机科学与技术 | 专注人工智能方向，目标大厂 AI 岗。" />
+    <meta property="og:image" content="https://zhangshuoheng.github.io/og-default.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- 字体：Inter + JetBrains Mono（离线时自动回退到系统字体） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>仉烁蘅 —— 个人网站</title>
+
+    <!-- 首屏前设置主题，避免闪烁（FOUC）：默认暗色，仅当用户曾显式切到浅色时才用浅色 -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme')
+          if (stored !== 'light') document.documentElement.classList.add('dark')
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

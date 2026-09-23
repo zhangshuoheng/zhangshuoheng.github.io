@@ -1,0 +1,265 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* 深色模式：class 策略（.dark 挂在 <html> 上） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* 字体（中文回退优先） */
+  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* 主色（品牌色，克制使用：链接、按钮、强调） */
+  --color-brand-50: #f1f2fd;
+  --color-brand-100: #e4e6fb;
+  --color-brand-200: #cdd1f7;
+  --color-brand-300: #aab1f0;
+  --color-brand-400: #838ce8;
+  --color-brand-500: #5e6ad2;
+  --color-brand-600: #4a55c4;
+  --color-brand-700: #3d45a4;
+  --color-brand-800: #353c85;
+  --color-brand-900: #2f366c;
+  --color-brand-950: #1c1f40;
+
+  /* 页面切换过渡动画 */
+  --animate-page-in: page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  /* 原生控件（滚动条、输入框、选择器等）跟随当前主题取色 */
+  :root {
+    color-scheme: light;
+  }
+  :root.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-zinc-50 text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-200;
+  }
+  ::selection {
+    background-color: var(--color-brand-500);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* ============ 滚动渐入 ============ */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============ Markdown 排版微调 ============ */
+.markdown {
+  max-width: none;
+}
+.markdown [id] {
+  scroll-margin-top: 5.5rem;
+}
+/* 标题锚点图标 */
+.heading-anchor {
+  opacity: 0;
+  margin-left: 0.4em;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--color-brand-500);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.markdown :is(h1, h2, h3, h4):hover .heading-anchor {
+  opacity: 0.5;
+}
+/* 行内代码 */
+.markdown :where(code):not(:where(pre code)) {
+  @apply rounded-md bg-zinc-100 px-1.5 py-0.5 text-[0.875em] font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100;
+  font-family: var(--font-mono);
+}
+/* 代码块：统一深色面板，深浅模式一致（Vercel 风格） */
+.markdown pre {
+  @apply overflow-x-auto rounded-xl border border-zinc-200 bg-zinc-950 p-4 text-[0.85rem] leading-relaxed dark:border-zinc-800;
+}
+.markdown pre code {
+  @apply bg-transparent p-0 text-zinc-100;
+  font-family: var(--font-mono);
+}
+/* 链接 */
+.markdown a {
+  @apply text-brand-600 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-brand-500 dark:text-brand-300 dark:decoration-zinc-700 dark:hover:text-brand-200;
+}
+
+/* ============ 代码语法着色（highlight.js token，深浅两套） ============ */
+.hljs-comment,
+.hljs-quote {
+  color: #98a1b3;
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-meta .hljs-keyword {
+  color: #7c3aed;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-char.escape_,
+.hljs-template-variable {
+  color: #0e7490;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet {
+  color: #b45309;
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-section,
+.hljs-selector-id {
+  color: #4338ca;
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-tag {
+  color: #be185d;
+}
+.hljs-built_in,
+.hljs-type,
+.hljs-params {
+  color: #0369a1;
+}
+.hljs-meta,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: #374151;
+}
+.hljs-link {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+.hljs-deletion {
+  color: #b91c1c;
+  background-color: rgb(185 28 28 / 0.12);
+}
+.hljs-addition {
+  color: #15803d;
+  background-color: rgb(21 128 61 / 0.12);
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 700;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: #7d8590;
+}
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-doctag,
+.dark .hljs-meta .hljs-keyword {
+  color: #ff7b72;
+}
+.dark .hljs-string,
+.dark .hljs-regexp,
+.dark .hljs-char.escape_,
+.dark .hljs-template-variable {
+  color: #a5d6ff;
+}
+.dark .hljs-number,
+.dark .hljs-literal,
+.dark .hljs-symbol,
+.dark .hljs-bullet {
+  color: #79c0ff;
+}
+.dark .hljs-title,
+.dark .hljs-title.function_,
+.dark .hljs-section,
+.dark .hljs-selector-id {
+  color: #d2a8ff;
+}
+.dark .hljs-attr,
+.dark .hljs-attribute,
+.dark .hljs-variable,
+.dark .hljs-template-tag {
+  color: #79c0ff;
+}
+.dark .hljs-built_in,
+.dark .hljs-type,
+.dark .hljs-params {
+  color: #ffa657;
+}
+.dark .hljs-meta,
+.dark .hljs-tag,
+.dark .hljs-name,
+.dark .hljs-selector-class,
+.dark .hljs-selector-attr,
+.dark .hljs-selector-pseudo {
+  color: #e6edf3;
+}
+.dark .hljs-link {
+  color: #79c0ff;
+}
+.dark .hljs-deletion {
+  color: #ffa198;
+  background-color: rgb(255 161 152 / 0.12);
+}
+.dark .hljs-addition {
+  color: #aff5b4;
+  background-color: rgb(175 245 180 / 0.12);
+}
+
+/* ============ 无障碍：尊重系统"减少动态效果"设置 ============ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .animate-page-in {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
