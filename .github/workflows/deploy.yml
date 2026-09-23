@@ -1,6 +1,7 @@
 # 推送 main 分支后自动构建并部署到 GitHub Pages
-# 无需手动配置：workflow 会自动开启 Pages 并切换为 GitHub Actions 构建
-# （若自动开启失败，手动设置一次：Settings → Pages → Source 选择 "GitHub Actions"）
+# 说明：工作流会尝试自动把 Pages 切换为 "GitHub Actions" 构建方式；
+#      若 token 权限不足导致切换失败，会明确报错并提示手动设置一次：
+#      Settings → Pages → Build and deployment → Source 选择 "GitHub Actions"
 name: Deploy to GitHub Pages
 
 on:
@@ -15,7 +16,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -39,16 +40,34 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
-          # 仓库尚未开启 Pages 时自动开启
           enablement: true
 
-      - name: 确保 Pages 使用 GitHub Actions 构建
-        # 仓库若已按旧方式（从分支部署）开启，这一句会切换为 Actions 构建；
-        # 权限不足时忽略，改为在 Settings → Pages 手动选择 GitHub Actions
-        continue-on-error: true
+      - name: 校验并切换到 GitHub Actions 构建方式
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api --method PUT "repos/${{ github.repository }}/pages" -f build_type=workflow
+        run: |
+          set +e
+          current=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null)
+          echo "当前 Pages build_type = ${current:-未知（站点可能尚未创建）}"
+
+          if [ -z "$current" ]; then
+            echo "尝试创建 Pages 站点（workflow 模式）…"
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow >/dev/null 2>&1
+            current=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null)
+          fi
+
+          if [ "$current" != "workflow" ]; then
+            echo "尝试切换为 GitHub Actions 构建…"
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow >/dev/null 2>&1
+            current=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null)
+            echo "切换后 build_type = ${current:-未知}"
+          fi
+
+          if [ "$current" != "workflow" ]; then
+            echo "::error::Pages 当前不是 GitHub Actions 构建模式，部署不会生效。请在仓库 Settings → Pages → Build and deployment → Source 选择 “GitHub Actions”，然后重新运行本工作流（Actions → Deploy to GitHub Pages → Re-run all jobs）。"
+            exit 1
+          fi
+          echo "✓ Pages 构建方式 = workflow，继续部署"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
