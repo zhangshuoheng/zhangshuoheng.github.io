@@ -1,5 +1,6 @@
 # 推送 main 分支后自动构建并部署到 GitHub Pages
-# 首次使用：仓库 Settings → Pages → Build and deployment → Source 选择 "GitHub Actions"
+# 无需手动配置：workflow 会自动开启 Pages 并切换为 GitHub Actions 构建
+# （若自动开启失败，手动设置一次：Settings → Pages → Source 选择 "GitHub Actions"）
 name: Deploy to GitHub Pages
 
 on:
@@ -37,6 +38,17 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # 仓库尚未开启 Pages 时自动开启
+          enablement: true
+
+      - name: 确保 Pages 使用 GitHub Actions 构建
+        # 仓库若已按旧方式（从分支部署）开启，这一句会切换为 Actions 构建；
+        # 权限不足时忽略，改为在 Settings → Pages 手动选择 GitHub Actions
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api --method PUT "repos/${{ github.repository }}/pages" -f build_type=workflow
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
